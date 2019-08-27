@@ -2,7 +2,7 @@
     <img
       alt="Node.js"
       src="https://user-images.githubusercontent.com/3664948/63746652-ec549200-c8d7-11e9-8b5f-4d398e975e05.png"
-      width="900"
+      width="894"
     />
 </p>
 
