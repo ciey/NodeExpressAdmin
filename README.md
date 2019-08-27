@@ -1,7 +1,7 @@
 <p align="center">
     <img
       alt="Node.js"
-      src="https://user-images.githubusercontent.com/3664948/63746313-22dddd00-c8d7-11e9-9b6e-c4c8e1aa1499.png"
+      src="https://user-images.githubusercontent.com/3664948/63746652-ec549200-c8d7-11e9-8b5f-4d398e975e05.png"
       width="900"
     />
 </p>
