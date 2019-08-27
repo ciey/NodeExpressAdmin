@@ -1,0 +1,216 @@
+<% layout('layout-form') -%>
+<link href="/assets/libs/zTree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet">
+<script src="/assets/libs/zTree/js/jquery.ztree.all.js"></script>
+<style>
+    .menuContent {
+        display: none;
+        position: absolute;
+        overflow: auto;
+        background-color: #fff;
+        border: 1px solid #e5e6e7;
+    }
+</style>
+<form id="form1">
+    <div class="formEdit">
+        <% if(typeof(action) !== 'undefined' && action == 'edit'){ %>
+        <input id="action" type="hidden" value="/system/userEdit/<%= model.id %>" />
+        <% }else{ %>
+        <input id="action" type="hidden" value="/system/userEdit/0" />
+        <% } %>
+        <table class="form">
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>用户名</th>
+                <td class="formValue">
+                    <input type="text" name="login_name" class="form-control required" placeholder="请输入登录用户名"
+                        value="<%= typeof(model) !== 'undefined' && model.login_name || '' %>">
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>登录密码</th>
+                <td class="formValue">
+                    <% if(typeof(action) !== 'undefined' && action == 'add'){ %>
+                    <input type="password" name="login_password" class="form-control required" placeholder="请输入密码">
+                    <% }else{ %>
+                    <input type="password" name="login_password" class="form-control" placeholder="不修改密码请留空">
+                    <% } %>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">所属部门</th>
+                <td class="formValue">
+                    <input id="sel_branch" type="hidden"
+                        value="<%= typeof(model) !== 'undefined' && model.branch_id || '0' %>" />
+                    <select class="form-control" id="branch_id" name="branch_id">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">职位</th>
+                <td class="formValue">
+                    <input id="sel_position" type="hidden"
+                        value="<%= typeof(model) !== 'undefined' && model.position_id || '' %>" />
+                    <input type="text" id="sel_name" class="form-control" readonly
+                        value="<%= typeof(model) !== 'undefined' && model.position_name || '' %>"
+                        onclick="showMenu();" />
+                </td>
+            </tr>
+
+            <tr>
+                <th class="formTitle">真实名称</th>
+                <td class="formValue">
+                    <input type="text" name="real_name" class="form-control"
+                        value="<%= typeof(model) !== 'undefined' && model.real_name || '' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">手机号码</th>
+                <td class="formValue">
+                    <input type="text" name="mobile" class="form-control"
+                        value="<%= typeof(model) !== 'undefined' && model.mobile || '' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否启用</th>
+                <td class="formValue">
+                    <select id="is_enabled" name="is_enabled" class="form-control">
+                        <option value="1"
+                            <%= typeof(model) !== 'undefined' && model.is_enabled === 1 ? 'selected' : '' %>>启用
+                        </option>
+                        <option value="0"
+                            <%= typeof(model) !== 'undefined' && model.is_enabled === 0 ? 'selected' : '' %>>禁用
+                        </option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <div id="menuContent" class="menuContent">
+        <ul id="tree" class="ztree" style="margin-top:0; width:360px; height: 200px;"></ul>
+    </div>
+</form>
+
+
+<script>
+    var setting = {
+        check: {
+            enable: true,
+            chkboxType: {"Y": "", "N": ""}
+        },
+        view: {
+            dblClickExpand: false
+        },
+        data: {
+            simpleData: {
+                enable: true,
+                idKey: "id",
+                pIdKey: "parent_id",
+            }
+        },
+        async: {
+            enable: true,
+            type: "get",  //默认是post请求
+            url: "/system/getPositionTreeJson"
+        },
+        callback: {
+            beforeClick: beforeClick,
+            onCheck: onCheck,
+            onAsyncSuccess: zTreeOnAsyncSuccess,  //异步加载正常结束的事件回调函数
+        }
+    };
+
+    function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
+        var treeObj = $.fn.zTree.getZTreeObj(treeId);
+        treeObj.expandAll(true);
+
+        setCheckNode($("#sel_position").val());
+    }
+    function beforeClick(treeId, treeNode) {
+        var zTree = $.fn.zTree.getZTreeObj("tree");
+        zTree.checkNode(treeNode, !treeNode.checked, null, true);
+        return false;
+    }
+
+    function onCheck(e, treeId, treeNode) {
+        var zTree = $.fn.zTree.getZTreeObj("tree"),
+            nodes = zTree.getCheckedNodes(true),
+            v = "";
+        for (var i = 0, l = nodes.length;i < l;i++) {
+            v += nodes[i].name + ",";
+        }
+        if (v.length > 0) v = v.substring(0, v.length - 1);
+        var selObj = $("#sel_name");
+        selObj.attr("value", v);
+    }
+
+    function getCheckedNode() {
+        var treeObj = $.fn.zTree.getZTreeObj("tree"),
+            nodes = treeObj.getCheckedNodes(true),
+            checked = "";
+        for (var i = 0, l = nodes.length;i < l;i++) {
+            checked += nodes[i].pid + ",";
+        }
+        if (checked.length > 0) checked = checked.substring(0, checked.length - 1);
+        return checked;
+    }
+
+    function setCheckNode(idStr) {
+        var treeObj = $.fn.zTree.getZTreeObj("tree");
+        var ids = idStr.split(',');
+        for (var i = 0;i < ids.length;i++) {
+            var node = treeObj.getNodeByParam("pid", ids[i]);
+            if (node != null) {
+                treeObj.checkNode(node, true);
+            }
+        }
+    }
+
+    function showMenu() {
+        var cityObj = $("#sel_name");
+        var cityOffset = $("#sel_name").offset();
+        $("#menuContent").css({left: cityOffset.left + "px", top: cityOffset.top + cityObj.outerHeight() + "px"}).slideDown("fast");
+
+        $("body").bind("mousedown", onBodyDown);
+    }
+    function hideMenu() {
+        $("#menuContent").fadeOut("fast");
+        $("body").unbind("mousedown", onBodyDown);
+    }
+    function onBodyDown(event) {
+        if (!(event.target.id == "menuBtn" || event.target.id == "sel_name" || event.target.id == "menuContent" || $(event.target).parents("#menuContent").length > 0)) {
+            hideMenu();
+        }
+    }
+
+    $(function() {
+        $("#branch_id").bindSelect({
+            url: "/system/getBranchSelectJson",
+            id: "id",
+            text: "name",
+        });
+        $("#branch_id").val($("#sel_branch").val()).trigger("change");
+
+        //初始化菜单权限树
+        $.fn.zTree.init($("#tree"), setting);
+    })
+
+    function submitForm() {
+        var postData = $('#form1').serializeArray();
+        postData.push({
+            name: "position_id",
+            value: getCheckedNode()
+        });
+        postData.push({
+            name: "position_name",
+            value: $("#sel_name").val()
+        });
+        $.submitForm({
+            url: $("#action").val(),
+            param: postData,
+            success: function() {
+                parent.refreshTable();  //刷新父级Table
+            }
+        })
+    }
+</script>

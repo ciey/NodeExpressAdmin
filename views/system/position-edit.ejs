@@ -1,0 +1,130 @@
+<% layout('layout-form') -%>
+<link href="/assets/libs/zTree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet">
+<script src="/assets/libs/zTree/js/jquery.ztree.all.js"></script>
+<form id="form1">
+    <div class="formEdit">
+        <% if(typeof(action) !== 'undefined' && action == 'edit'){ %>
+        <input id="action" type="hidden" value="/system/positionEdit/<%= model.id %>" />
+        <% }else{ %>
+        <input id="action" type="hidden" value="/system/positionEdit/0" />
+        <% } %>
+        <table class="form">
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>职位名称</th>
+                <td class="formValue">
+                    <input id="name" name="name" type="text" class="form-control required" placeholder="请输入职位名称"
+                        value="<%= typeof(model) !== 'undefined' && model.name || '' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>所属部门</th>
+                <td class="formValue">
+                    <input id="sel_branch" type="hidden"
+                        value="<%= typeof(model) !== 'undefined' && model.branch_id || '0' %>" />
+                    <select id="branch_id" name="branch_id" class="form-control required">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>职位权限</th>
+                <td class="formValue">
+                    <input id="sel_menu" type="hidden" value="<%= typeof(model) !== 'undefined' && model.menu_id || '' %>" />
+                    <ul id="tree" class="ztree" style="overflow:auto;"></ul>
+                </td>
+            </tr>
+        </table>
+
+
+    </div>
+</form>
+
+<script>
+    //zTree配置
+        var setting = {
+            data: {
+                simpleData: {
+                    enable: true,
+                    idKey: "id",
+                    pIdKey: "parent_id",
+                }
+            },
+            async: {
+                enable: true,
+                type: "get",  //默认是post请求
+                url: "/system/getMenuTreeJson"
+            },
+            check: {
+                enable: true,
+                chkboxType: {"Y": "p", "N": "s"}
+            },
+            callback: {
+                beforeClick: function(treeId, treeNode) {
+                    var zTree = $.fn.zTree.getZTreeObj("tree");
+                    if (treeNode.isParent) {
+                        zTree.expandNode(treeNode);
+                    }
+                },
+                onAsyncSuccess: zTreeOnAsyncSuccess,  //异步加载正常结束的事件回调函数
+            }
+        };
+
+        function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
+                var treeObj = $.fn.zTree.getZTreeObj(treeId);
+                treeObj.expandAll(true);
+
+                setCheckNode($("#sel_menu").val());
+            }
+    $(function() {
+        $("#branch_id").bindSelect({
+            url: "/system/getBranchSelectJson",
+            id: "id",
+            text: "name",
+        });
+        $("#branch_id").val($("#sel_branch").val()).trigger("change");
+
+        //初始化菜单权限树
+        $.fn.zTree.init($("#tree"), setting);
+        
+    });
+
+    function setCheckNode(idStr){
+        var treeObj = $.fn.zTree.getZTreeObj("tree");
+        var ids = idStr.split(',');
+        for (var i = 0; i < ids.length; i++) {
+            var node = treeObj.getNodeByParam("id", ids[i]);
+            if (node != null) {
+                treeObj.checkNode(node, true);
+            }
+        }
+    }
+
+    function getCheckedNode() {
+            var treeObj = $.fn.zTree.getZTreeObj("tree"),
+                nodes = treeObj.getCheckedNodes(true),
+                checked = "";
+            for (var i = 0, l = nodes.length;i < l;i++) {
+                    checked += nodes[i].id + ",";
+            }
+            if (checked.length > 0) checked = checked.substring(0, checked.length - 1);
+            return checked;
+    }
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var postData = $('#form1').serializeArray();
+        postData.push({
+            name: "menu_id",
+            value: getCheckedNode()
+        });
+        $.submitForm({
+            url: $("#action").val(),
+            param: postData,
+            success: function() {
+                parent.refreshTable();  //刷新父级Table
+            }
+        })
+    }
+
+</script>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>
+        <% if(typeof(pageTitle) !== 'undefined') { %>
+        <%= pageTitle %>
+        <% } else { %>
+          <%= site.name %>
+        <% } %>
+    </title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/assets/images/shards-logo.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="/assets/libs/font-awesome/css/fontawesome-all.css" rel='stylesheet' />
+    <link rel='stylesheet' href="/assets/libs/bootstrap/css/bootstrap.css" />
+    <link rel="stylesheet" href="/assets/libs/layer/layer.css" />
+
+    <script type="text/javascript" src="/assets/libs/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/assets/libs/bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/assets/libs/layer/layer.js"></script>
+  </head>
+  <body>
+        <%- body -%>
+  </body>  
+</html>

@@ -1,0 +1,95 @@
+<% layout('layout-form') -%>
+<form id="form1">
+    <div class="formEdit">
+        <% if(typeof(action) !== 'undefined' && action == 'edit'){ %>
+        <input id="action" type="hidden" value="/system/menuEdit/<%= model.id %>" />
+        <% }else{ %>
+        <input id="action" type="hidden" value="/system/menuEdit/0" />
+        <% } %>
+        <table class="form">
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>菜单名称</th>
+                <td class="formValue">
+                    <input id="name" name="name" type="text" class="form-control required" placeholder="请输入菜单名称"
+                    value="<%= typeof(model) !== 'undefined' && model.name || '' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>上级节点</th>
+                <td class="formValue">
+                    <input id="sel_parent" type="hidden" value="<%= typeof(model) !== 'undefined' && model.parent_id || '0' %>" />
+                    <select id="parent_id" name="parent_id" class="form-control">
+                        <option value="0">根节点</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">菜单地址</th>
+                <td class="formValue">
+                    <input id="page_url" name="page_url" type="text" class="form-control" placeholder="菜单地址"
+                    value="<%= typeof(model) !== 'undefined' && model.page_url || '' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">控件地址</th>
+                <td class="formValue">
+                    <input id="control_url" name="control_url" type="text" class="form-control" placeholder="控件地址"
+                    value="<%= typeof(model) !== 'undefined' && model.control_url || '' %>" />
+                </td>
+            </tr>
+            
+            <tr>
+                <th class="formTitle">排序</th>
+                <td class="formValue">
+                    <input id="sort" name="sort" type="text" class="form-control" 
+                    value="<%= typeof(model) !== 'undefined' && model.sort || '0' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否显示</th>
+                <td class="formValue">
+                    <select id="is_show" name="is_show" class="form-control">
+                        <option value="1" <%= typeof(model) !== 'undefined' && model.is_show === 1 ? 'selected' : '' %>>显示</option>
+                        <option value="0" <%= typeof(model) !== 'undefined' && model.is_show === 0 ? 'selected' : '' %>>隐藏</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否启用</th>
+                <td class="formValue">
+                    <select id="is_enabled" name="is_enabled" class="form-control">
+                        <option value="1" <%= typeof(model) !== 'undefined' && model.is_enabled === 1 ? 'selected' : '' %>>启用</option>
+                        <option value="0" <%= typeof(model) !== 'undefined' && model.is_enabled === 0 ? 'selected' : '' %>>禁用</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+
+
+    </div>
+</form>
+
+<script>
+    $(function() {
+        $("#parent_id").bindSelect({
+            url: "/system/getMenuSelectJson",
+            id: "id",
+            text: "name",
+        });
+        $("#parent_id").val($("#sel_parent").val()).trigger("change");
+    });
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: $("#action").val(),
+            param: $("#form1").formSerialize(),
+            success: function() {
+                parent.refreshTable();  //刷新父级Table
+            }
+        })
+    }
+
+</script>

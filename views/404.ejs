@@ -1,0 +1,15 @@
+<% layout('layout-nologin') -%>
+<div class="middle-box text-center">
+    <img class="text-center" src="/assets/images/404.png" width="500" class="img-responsive" alt="Image">
+    <h3 class="font-bold">抱歉，您访问的页面不存在</h3> 
+    <button id="btnBack" type="button" class="btn btn-primary">返回首页</button>
+</div>
+<script>
+    $("#btnBack").click(function() {
+        if (top !== self) {
+            top.location.href = "/main";
+        }else{
+            window.location.href = "/main";
+        }
+    });
+</script>

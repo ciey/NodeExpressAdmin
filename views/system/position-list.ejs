@@ -1,0 +1,166 @@
+<% layout('layout-main') -%>
+<link href="/assets/libs/zTree/css/zTreeStyle/zTreeStyle.css" rel="stylesheet">
+<script src="/assets/libs/zTree/js/jquery.ztree.all.js"></script>
+<div class="wrapper wrapper-content animated fadeInUp">
+    <div class="row">
+        <div class="col-lg-2">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>部门列表</h5>
+                </div>
+                <div class="ibox-content">
+                    <div>
+                        <ul id="tree" class="ztree" style="overflow:auto;"></ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-10 animate fadeInUp">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5><%= typeof(pageTitle) !== 'undefined' && pageTitle || '职位管理' %></h5>
+                </div>
+                <div class="ibox-content">
+                    <div id="toolbar">
+                        <button id="btnAdd" class="btn btn-primary"><i class="fa fa-plus"></i>新增</button>
+                    </div>
+                    <table class="table" id="contentTable" style="font-size:14px;"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //zTree配置
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true,
+                idKey: "id",
+                pIdKey: "parent_id",
+            }
+        },
+        async: {
+            enable: true,
+            type: "get",  //默认是post请求
+            url: "/system/getBranchTreeJson"
+        },
+        callback: {
+            beforeClick: function(treeId, treeNode) {
+                var zTree = $.fn.zTree.getZTreeObj("tree");
+                if (treeNode.isParent) {
+                    zTree.expandNode(treeNode);
+                }
+                $('#contentTable').bootstrapTable('refresh', {
+                    url: '/system/getPositionPage?branch_id=' + treeNode.id,
+                });
+            },
+            onAsyncSuccess: zTreeOnAsyncSuccess,  //异步加载正常结束的事件回调函数
+        }
+    };
+
+    function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
+        var treeObj = $.fn.zTree.getZTreeObj(treeId);
+        var nodes = treeObj.getNodes();
+        if (nodes.length > 0) {
+            for (var i = 0;i < nodes.length;i++) {
+                treeObj.expandNode(nodes[i], true, false, false);//默认展开第一级节点
+            }
+        }
+    }
+
+
+    $(function() {
+        //初始化部门树
+        $.fn.zTree.init($("#tree"), setting);
+
+        $('#btnAdd').click(function() {
+            $.modalOpen({
+                id: "Form",
+                title: "新增职位",
+                url: "/system/positionEdit/0",
+                width: "500px",
+                height: "450px",
+                callBack: function(iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        });
+
+        $('#contentTable').bootstrapTable({
+            url: '/system/getPositionPage', //请求后台的URL
+            method: 'get', //请求方式
+            toolbar: '#toolbar', //工具按钮用哪个容器
+            striped: true, //是否显示行间隔色
+            sortable: true, //是否启用排序
+            pagination: true, //是否显示分页（*）
+            sidePagination: "server", //分页方式：client客户端分页，server服务端分页
+            pageSize: 15, //每页的记录行数（*）
+            pageList: [10, 15, 30, 50], //可供选择的每页的行数（*）
+            showRefresh: false, //是否显示刷新按钮
+            search: false, //是否启用搜索框
+            cache: false, //是否使用缓存，默认为true   
+            //classes: 'table-no-bordered',
+            columns: [{
+                field: '_id',
+                title: '序号',
+                width: '60px',
+                formatter: indexFormatter
+            }, {
+                field: 'name',
+                title: '职位名称',
+                align: 'left',
+                width: '120px'
+            }, {
+                field: 'branch_name',
+                title: '所属部门',
+                align: 'left',
+                width: '120px'
+            }, {
+                field: 'operate',
+                title: '操作',
+                align: 'center',
+                width: '180px',
+                events: operateEvents,
+                formatter: operateFormatter
+            }]
+        });
+
+    });
+
+    window.operateEvents = {
+            'click .edit': function(e, value, row, index) {
+                $.modalOpen({
+                    id: "Form",
+                    title: "编辑职位",
+                    url: "/system/positionEdit/" + row.id,
+                    width: "500px",
+                    height: "450px",
+                    callBack: function(iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            },
+            'click .remove': function(e, value, row, index) {
+                $.deleteForm({
+                    url: "/system/deletePosition/" + row.id,
+                    success: function() {
+                        $("#contentTable").bootstrapTable('refresh');
+                    }
+                });
+            },
+        };
+
+        function operateFormatter(value, row, index) {
+            return [
+                '<a class="edit btn btn-xs btn-primary" title="编辑">',
+                '<i class="fa fa-edit"></i>',
+                '编辑</a>  ',
+                '<a class="remove btn btn-xs btn-danger" title="删除">',
+                '<i class="fa fa-minus-circle"></i>',
+                '删除</a>'
+            ].join('');
+        }
+
+</script>

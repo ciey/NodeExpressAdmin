@@ -1,0 +1,70 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="profile-element">
+                    <a class="navbar-brand w-100 mr-0" href="#" style="line-height: 25px;">
+                        <div class="d-table m-auto">
+                            <img id="main-logo" class="d-inline-block align-top mr-1" style="max-width: 25px;"
+                                src="/assets/images/shards-logo.svg" alt="">
+                            <span class="d-none d-md-inline ml-1">后台管理</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="logo-element">
+                    <img id="main-logo" class="d-inline-block align-top mr-1" style="max-width: 25px;"
+                        src="/assets/images/shards-logo.svg" alt="">
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+<script>
+    $(function() {
+        $.ajax({
+            type: "get",
+            url: '/system/getMenuTreeJsonByUser',
+            success: function(data) {
+                var sidemenu = resolvSideMenu(data);
+                $('#side-menu').metisMenu('dispose'); //https://mm.onokumus.com/mm-ajax.html
+                $('#side-menu').append(sidemenu);
+                $('#side-menu').metisMenu();
+                urlchange();
+            }
+        })
+    })
+
+    function resolvSideMenu(node) {
+        var data = [];
+        node.forEach(item => {
+            var li = $('<li>');
+            if (item.children) {
+                li.append(`<a href="javascript:void(0);">
+                    <i class="${ item.icon }"></i>
+                    <span class="nav-label">${ item.name }</span>
+                    <span class="fa arrow"></span>
+                    </a>`);
+                var ul = $('<ul>').addClass("nav").addClass("nav-second-level");
+                if (item.level == 2) {
+                    ul.addClass("nav-third-level");
+                }
+                var li_child = resolvSideMenu(item.children);
+                ul.append(li_child);
+                li.append(ul);
+            }
+            else {
+                if (item.level == 0) {
+                    li.append(`<a href="${ item.page_url }">
+                        <i class="${ item.icon }"></i>
+                       <span class="nav-label">${ item.name }</span>
+                      </a>`)
+                }else{
+                    li.append(`<a href="${ item.page_url }">${ item.name }</a>`)
+                }
+                
+            }
+            data.push(li);
+        });
+        return data;
+    }
+</script>

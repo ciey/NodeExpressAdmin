@@ -1,0 +1,71 @@
+<% layout('layout-form') -%>
+<form id="form1">
+    <div class="formEdit">
+        <% if(typeof(action) !== 'undefined' && action == 'edit'){ %>
+        <input id="action" type="hidden" value="/system/branchEdit/<%= model.id %>" />
+        <% }else{ %>
+        <input id="action" type="hidden" value="/system/branchEdit/0" />
+        <% } %>
+        <table class="form">
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>部门名称</th>
+                <td class="formValue">
+                    <input id="name" name="name" type="text" class="form-control required" placeholder="请输入部门名称"
+                        value="<%= typeof(model) !== 'undefined' && model.name || '' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle"><span class="text-danger">* </span>上级节点</th>
+                <td class="formValue">
+                    <input id="sel_parent" type="hidden"
+                        value="<%= typeof(model) !== 'undefined' && model.parent_id || '0' %>" />
+                    <select id="parent_id" name="parent_id" class="form-control">
+                        <option value="0">根节点</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">部门编码</th>
+                <td class="formValue">
+                    <input id="code" name="code" type="text" class="form-control" placeholder="部门编码"
+                        value="<%= typeof(model) !== 'undefined' && model.code || '' %>" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">排序</th>
+                <td class="formValue">
+                    <input id="sort" name="sort" type="text" class="form-control"
+                        value="<%= typeof(model) !== 'undefined' && model.sort || '0' %>" />
+                </td>
+            </tr>
+            
+        </table>
+
+
+    </div>
+</form>
+
+<script>
+    $(function() {
+        $("#parent_id").bindSelect({
+            url: "/system/getBranchSelectJson",
+            id: "id",
+            text: "name",
+        });
+        $("#parent_id").val($("#sel_parent").val()).trigger("change");
+    });
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: $("#action").val(),
+            param: $("#form1").formSerialize(),
+            success: function() {
+                parent.refreshTable();  //刷新父级Table
+            }
+        })
+    }
+
+</script>

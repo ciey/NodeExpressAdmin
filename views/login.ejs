@@ -1,0 +1,180 @@
+<% layout('layout-nologin') -%>
+<style>
+    .bg-content {
+        padding-top: 200px;
+        height: 800px;
+        background: #0162d5;
+        background: -webkit-linear-gradient(left top, #04afe0, #0162d5);
+        background: -moz-linear-gradient(bottom right, #04afe0, #0162d5);
+        background: linear-gradient(to bottom right, #04afe0, #0162d5);
+    }
+
+    .login-frame {
+        border: 1px solid #DDD;
+        border-radius: 4px;
+    }
+
+    .login-frame .login-form {
+        background-color: #FFF;
+        padding: 20px 40px;
+    }
+
+    .login-form .glyphicon {
+        color: #999c9e;
+    }
+
+    .login-form em.invalid {
+        color: #e74c3c;
+        font-style: normal;
+        margin-top: -15px;
+        padding-bottom: 10px;
+    }
+
+    .sig-up {
+        width: 100%;
+        border-bottom: 1px solid #DDD;
+        padding-bottom: 10px;
+        overflow: hidden;
+    }
+
+    .sig-up .form-title {
+        float: left;
+        font-weight: normal;
+        font-size: 22px;
+        color: #333;
+    }
+
+    .sig-item {
+        margin-top: 38px;
+    }
+
+    .navbar-inverse {
+        background-color: #2b6695;
+
+        border: none;
+        margin-bottom: 0;
+    }
+
+    .navbar-brand {
+        color: #fff !important;
+    }
+
+    .navbar-nav>li>a {
+        color: #fff !important;
+    }
+
+    .nav>li>a i {
+        margin-right: 6px;
+    }
+</style>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/"><img id="main-logo" class="d-inline-block align-top mr-1" src="/assets/images/shards-logo.svg"
+                alt=""><%= site.name %></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <!--<li><a href="/" target="_blank"><i class="fa fa-send-o"></i>网站首页</a></li>-->
+                <!--<li><a href="/logout"><i class="fa fa-sign-out"></i>退出</a></li>-->
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="bg-content">
+    <div class="container">
+        <div class="row">
+                <div class="col-lg-7 visible-lg-block">
+                        <img src="/assets/images/login_info.png" class="img-responsive" style="height: 400px;" />
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="login-frame">
+                            <form id="loginform" class="login-form">
+                                <div class="sig-up">
+                                    <h2 class="form-title">系统登录</h2>
+                                </div>
+                                <div class="form-group sig-item">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text" id="btnGroupAddon"><span class="fa fa-user"></span></div>
+                                        </div>
+                                        <input id="loginname" name="loginname" type="text" class="form-control"
+                                            style="height: 40px;" placeholder="用户名" aria-describedby="basic-addon1"
+                                            autofocus="autofocus" />
+                                    </div>
+                                    <em for="loginname" class="invalid" style="display:none;">请输入用户名</em>
+                                </div>
+                                <div class="form-group sig-item">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text" id="btnGroupAddon"><span class="fa fa-lock"></span></div>
+                                        </div>
+                                        <input id="password" name="password" type="password" class="form-control"
+                                            style="height: 40px;" placeholder="密码" aria-describedby="basic-addon2" />
+                                    </div>
+                                    <em for="loginname" class="invalid" style="display:none;">请输入密码</em>
+                                </div>
+                                <div class="sig-item">
+                                    <button id="loginSubmit" type="submit" class="btn btn-success btn-lg btn-block">登录</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+        </div>
+        
+    </div>
+</div>
+<div class="container" style="text-align: center;margin-top: 40px;">
+    <p>Copyright © ciey All Rights Reserved. </p>
+</div>
+<script>
+    function ShowErrorMsg(node) {
+        var topNode = $(node).parents(".input-group");
+        topNode.next().show();
+    }
+
+    var resetBorder = function() {
+        var topNode = $(this).parents(".input-group");
+        topNode.next().hide();
+    };
+    $("input").keydown(resetBorder).focus(resetBorder);
+
+    $("#loginSubmit").click(function() {
+
+        var checkResult = true;
+        if ($('input[name=loginname]').val() == "") {
+            checkResult = false;
+            ShowErrorMsg($('input[name=loginname]'))
+        }
+
+        if ($('input[name=password]').val() == "") {
+            checkResult = false;
+            ShowErrorMsg($('input[name=password]'))
+        }
+
+        if (!checkResult) {
+            return false;
+        }
+
+        $.ajax({
+            url: '/login',
+            data: $('#loginform').serialize(),
+            type: "post",
+            dataType: "json",
+            success: function(data) {
+                if (data.state) {
+                    window.location.href = "/main";
+                } else {
+                    layer.alert(data.msg, {
+                        icon: "fa-times-circle",
+                        title: "系统提示",
+                        btn: ['确认'],
+                        btnclass: ['btn btn-success'],
+                    });
+                }
+            }
+        });
+
+        return false;
+    });
+</script>

@@ -1,0 +1,162 @@
+<% layout('layout-main') -%>
+<link href="/assets/libs/jquery-treegrid/css/jquery.treegrid.css" rel="stylesheet">
+<script src="/assets/libs/jquery-treegrid/js/jquery.treegrid.js"></script>
+<script src="/assets/libs/bootstrap-table/extensions/treegrid/bootstrap-table-treegrid.js"></script>
+<div class="wrapper wrapper-content animated fadeInUp">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5><%= typeof(pageTitle) !== 'undefined' && pageTitle || '菜单管理' %></h5>
+                </div>
+                <div class="ibox-content">
+                    <div id="toolbar">
+                        <button id="btnAdd" class="btn btn-primary"><i class="fa fa-plus"></i>新增</button>
+                    </div>
+                    <table class="table" id="contentTable" style="font-size:14px;"></table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $(function() {
+        $('#btnAdd').click(function() {
+            $.modalOpen({
+                id: "Form",
+                title: "新增菜单",
+                url: "/system/menuEdit/0",
+                width: "500px",
+                height: "450px",
+                callBack: function(iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        });
+
+        $('#contentTable').bootstrapTable({
+            url: '/system/getMenuPage', //请求后台的URL
+            method: 'get', //请求方式
+            toolbar: '#toolbar', //工具按钮用哪个容器
+            striped: true, //是否显示行间隔色
+            sortable: true, //是否启用排序
+            pagination: true, //是否显示分页（*）
+            sidePagination: "server", //分页方式：client客户端分页，server服务端分页
+            pageSize: 100, //每页的记录行数（*）
+            pageList: [10, 15, 30, 50], //可供选择的每页的行数（*）
+            showRefresh: false, //是否显示刷新按钮
+            search: false, //是否启用搜索框
+            cache: false, //是否使用缓存，默认为true   
+            //classes: 'table-no-bordered',
+            idField: 'id',
+            treeShowField: 'name',
+            parentIdField: 'parent_id',
+            onPostBody: function() {
+                var columns = $('#contentTable').bootstrapTable('getOptions').columns
+                if (columns && columns[0][1].visible) {
+                    $('#contentTable').treegrid({
+                        treeColumn: 1,
+                        onChange: function() {
+                            $('#contentTable').bootstrapTable('resetWidth')
+                        }
+                    })
+                }
+            },
+            columns: [{
+                field: 'id',
+                title: '菜单id',
+                width: '60px',
+                //formatter: indexFormatter
+            }, {
+                field: 'name',
+                title: '菜单名称',
+                align: 'left',
+                width: '100px'
+            }, {
+                field: 'page_url',
+                title: '页面地址',
+                align: 'left',
+                width: '120px'
+            }, {
+                field: 'control_url',
+                title: '控件地址',
+                align: 'left',
+                width: '120px'
+            }, {
+                field: 'sort',
+                title: '排序',
+                align: 'left',
+                width: '80px'
+            }, {
+                field: 'is_show',
+                title: '是否显示',
+                align: 'center',
+                width: '80px',
+                formatter: showFormatter
+            }, {
+                field: 'is_enabled',
+                title: '是否启用',
+                align: 'center',
+                width: '80px',
+                formatter: enableFormatter
+            }, {
+                field: 'operate',
+                title: '操作',
+                align: 'center',
+                width: '180px',
+                events: operateEvents,
+                formatter: operateFormatter
+            }]
+        });
+    });
+
+    window.operateEvents = {
+        'click .edit': function(e, value, row, index) {
+            $.modalOpen({
+                id: "Form",
+                title: "编辑菜单",
+                url: "/system/menuEdit/" + row.id,
+                width: "500px",
+                height: "450px",
+                callBack: function(iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        },
+        'click .remove': function(e, value, row, index) {
+            $.deleteForm({
+                url: "/system/deleteMenu/" + row.id,
+                success: function() {
+                    $("#contentTable").bootstrapTable('refresh');
+                }
+            });
+        },
+    };
+
+    function operateFormatter(value, row, index) {
+        return [
+            '<a class="edit btn btn-xs btn-primary" title="编辑">',
+            '<i class="fa fa-edit"></i>',
+            '编辑</a>  ',
+            '<a class="remove btn btn-xs btn-danger" title="删除">',
+            '<i class="fa fa-minus-circle"></i>',
+            '删除</a>'
+        ].join('');
+    }
+
+    function enableFormatter(value, row, index) {
+        if (value == 1) {
+            return '<span class=\"label label-info\">启用</span>';
+        } else if (value == 0) {
+            return '<span class=\"label\">禁用</span>';
+        }
+    }
+    function showFormatter(value, row, index) {
+        if (value == 1) {
+            return '<span class=\"label label-info\">显示</span>';
+        } else if (value == 0) {
+            return '<span class=\"label\">隐藏</span>';
+        }
+    }
+</script>
