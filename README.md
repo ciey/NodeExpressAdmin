@@ -1,8 +1,8 @@
 <p align="center">
     <img
       alt="Node.js"
-      src="https://user-images.githubusercontent.com/3664948/63416950-03f0ce00-c433-11e9-863f-0e5022de9bbe.png"
-      width="800"
+      src="https://user-images.githubusercontent.com/3664948/63746313-22dddd00-c8d7-11e9-9b6e-c4c8e1aa1499.png"
+      width="900"
     />
 </p>
 
