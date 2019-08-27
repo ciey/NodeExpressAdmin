@@ -1,20 +1,25 @@
 <p align="center">
-  <a href="https://nodejs.org/">
+  <a href="https://github.com/ciey/NodeExpressAdmin">
     <img
       alt="Node.js"
-      src="https://nodejs.org/static/images/logo-light.svg"
-      width="400"
+      src="https://user-images.githubusercontent.com/3664948/63416950-03f0ce00-c433-11e9-863f-0e5022de9bbe.png"
+      width="600"
     />
   </a>
 </p>
 
-[![node version][node-image]][node-url]
-
-[node-image]: https://img.shields.io/badge/node.js-%3E=_8.0.0-green.svg
-[node-url]: http://nodejs.org/download/
+[![node version](https://img.shields.io/badge/node.js-%3E=_8.0.0-green.svg)](http://nodejs.org/download/)
+[![express](https://img.shields.io/badge/express-%5E4.17.1-green.svg)](https://expressjs.com)
+[![mysql](https://img.shields.io/badge/mysql-%5E2.17.1-green.svg)](https://github.com/mysqljs/mysql)
 
 ### 介绍
-NodeExpressAdmin为后台权限管理系统模板 
+NodeExpressAdmin为后台权限管理系统 
+
+[node后台权限管理系统(1)—权限设计](https://github.com/ciey/NodeExpressAdmin/issues/1)
+
+[node后台权限管理(2)—界面设计及实现](https://github.com/ciey/NodeExpressAdmin/issues/2)
+
+[node后台权限管理(3)—异常处理](https://github.com/ciey/NodeExpressAdmin/issues/3)
 
 ### 技术栈
 Framework: Express
@@ -43,6 +48,8 @@ $ npm install
 //mysql中手动建数据库，执行以下命令同步表
 $ node dbsync
 
+// models/sql/express_admin_init.sql 执行并初始化数据
+// 默认初设账户admin/admin, test/test
 $ npm start
 
 ```
@@ -53,17 +60,15 @@ $ npm start
 .
 ├── assets                          静态资源目录
 │   ├── css                         自定义css
-│   ├── fonts                       字体
-│   ├── images                      网站图标
+│   ├── images                      自定义图片
 │   ├── js                          自定义js
 │   └── libs                        第三方资源库
 ├── common                          公共组件
-│   ├── logger.js                   日志  
-│   ├── upload_multer.js            上传
+│   ├── logger.js                   日志
 │   └── xxx.js                      其他（后续增加）
 ├── controller                      控制器
 │   ├── login.js                    登录控制器 
-│   ├── user.js                     用户控制器
+│   ├── system.js                   系统控制器
 │   ├── xxxx.js                     其他（后续增加）
 ├── logs                            日志文件
 ├── middleware                      中间件
