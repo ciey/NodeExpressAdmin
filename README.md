@@ -1,11 +1,9 @@
 <p align="center">
-  <a href="https://github.com/ciey/NodeExpressAdmin">
     <img
       alt="Node.js"
       src="https://user-images.githubusercontent.com/3664948/63416950-03f0ce00-c433-11e9-863f-0e5022de9bbe.png"
-      width="600"
+      width="800"
     />
-  </a>
 </p>
 
 [![node version](https://img.shields.io/badge/node.js-%3E=_8.0.0-green.svg)](http://nodejs.org/download/)
